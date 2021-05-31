@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// The pomodoro structure
 type pomodoro struct {
 	Started      time.Time
 	DurationMins int8
@@ -24,6 +25,7 @@ func (p pomodoro) TimeLeft() time.Duration {
 	return p.End().UTC().Sub(time.Now().UTC())
 }
 
+// Formats the duration in the following format mm:ss
 func FmtDuration(d time.Duration) string {
 	d = d.Round(time.Second)
 	m := d / time.Minute
@@ -33,10 +35,12 @@ func FmtDuration(d time.Duration) string {
 	return fmt.Sprintf("%02d:%02d", m, s)
 }
 
+// Return true if the pomodoro has ended
 func HasEnded(p pomodoro, now time.Time) bool {
 	return p.End().UTC().Before(now.UTC())
 }
 
+// Creates a new pomodoro and adds is to the pomodoro list
 func Start(fileName string, startTime time.Time, dMins int8) (pomodoro, error) {
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
 		ioutil.WriteFile(fileName, nil, 0644)
@@ -81,6 +85,8 @@ func save(pomodoros []pomodoro, fileName string) error {
 	return ioutil.WriteFile(fileName, byteValue, 0644)
 }
 
+// Loads the list of pomodoro from the specified file
+// and returns them as a slice
 func Load(fileName string) ([]pomodoro, error) {
 	jsonFile, err := os.Open(fileName)
 	if err != nil {
@@ -104,8 +110,7 @@ func Load(fileName string) ([]pomodoro, error) {
 	return pomodoros, nil
 }
 
-// Loads the latest pomodoro,
-// if no pomodoro is available returns error that the list is empty
+// Loads the latest pomodoro
 func LoadLatest(fileName string) (pomodoro, error) {
 	pomodoros, err := Load(fileName)
 	if err != nil {
