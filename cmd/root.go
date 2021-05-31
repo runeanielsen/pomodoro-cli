@@ -20,7 +20,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	cobra.CheckErr(rootCmd.Execute())
+	rootCmd.Execute()
 }
 
 func init() {
