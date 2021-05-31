@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/runeanielsen/pomodoro-cli/internal/pomodoro"
 )
@@ -27,7 +28,7 @@ func TestStart(t *testing.T) {
 			}
 			defer os.Remove(tf.Name())
 
-			p, err := pomodoro.Start(tf.Name())
+			p, err := pomodoro.Start(tf.Name(), time.Now().UTC(), tc.expectDuration)
 
 			if tc.expectErrMsg != "" {
 				if err == nil {
