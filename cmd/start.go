@@ -15,14 +15,18 @@ var startCmd = &cobra.Command{
 	Short:        "Start pomomdoro",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return startAction(os.Stdout)
+		duration, err := cmd.Flags().GetInt8("duration")
+		if err != nil {
+			return err
+		}
+		return startAction(os.Stdout, duration)
 	},
 }
 
-func startAction(out io.Writer) error {
+func startAction(out io.Writer, dMins int8) error {
 	fileName := "/tmp/pomodoro.json"
 
-	p, err := pomodoro.Start(fileName, time.Now().UTC())
+	p, err := pomodoro.Start(fileName, time.Now().UTC(), dMins)
 	if err != nil {
 		return err
 	}
@@ -36,4 +40,5 @@ func startAction(out io.Writer) error {
 
 func init() {
 	rootCmd.AddCommand(startCmd)
+	startCmd.Flags().Int8P("duration", "d", 25, "Duration of the pomodoro")
 }

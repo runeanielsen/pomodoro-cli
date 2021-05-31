@@ -37,9 +37,19 @@ func HasEnded(p pomodoro, now time.Time) bool {
 	return p.End().UTC().Before(now.UTC())
 }
 
-func Start(fileName string, startTime time.Time) (pomodoro, error) {
+func Start(fileName string, startTime time.Time, dMins int8) (pomodoro, error) {
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
 		ioutil.WriteFile(fileName, nil, 0644)
+	}
+
+	l, err := LoadLatest(fileName)
+	if err != nil {
+		return pomodoro{}, err
+	}
+
+	if !HasEnded(l, startTime) || l.Cancelled {
+		return pomodoro{},
+			fmt.Errorf("Cannot start new pomodoro, please cancel the current one or wait till it is completed.")
 	}
 
 	pomodoros, err := Load(fileName)
@@ -49,7 +59,7 @@ func Start(fileName string, startTime time.Time) (pomodoro, error) {
 
 	newPomodoro := pomodoro{
 		Started:      startTime,
-		DurationMins: 25,
+		DurationMins: dMins,
 	}
 
 	pomodoros = append(pomodoros, newPomodoro)
@@ -103,7 +113,7 @@ func LoadLatest(fileName string) (pomodoro, error) {
 	}
 
 	if len(pomodoros) == 0 {
-		return pomodoro{}, fmt.Errorf("The list of pomodoros is empty.")
+		return pomodoro{}, nil
 	}
 
 	return pomodoros[len(pomodoros)-1], nil
