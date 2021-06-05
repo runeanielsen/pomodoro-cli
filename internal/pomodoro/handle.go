@@ -21,22 +21,13 @@ func (p pomodoro) End() time.Time {
 	return p.Started.Add(time.Minute * time.Duration(p.DurationMins))
 }
 
-func (p pomodoro) TimeLeft() time.Duration {
-	return p.End().UTC().Sub(time.Now().UTC())
-}
-
-// Formats the duration in the following format mm:ss
-func FmtDuration(d time.Duration) string {
-	d = d.Round(time.Second)
-	m := d / time.Minute
-	d -= m * time.Minute
-	s := d / time.Second
-
-	return fmt.Sprintf("%02d:%02d", m, s)
+// Gets the time that is left of the pomodoro
+func (p pomodoro) TimeLeft(currentTime time.Time) time.Duration {
+	return p.End().UTC().Sub(currentTime)
 }
 
 // Return true if the pomodoro has ended
-func HasEnded(p pomodoro, now time.Time) bool {
+func (p pomodoro) HasEnded(now time.Time) bool {
 	return p.End().UTC().Before(now.UTC())
 }
 
@@ -51,7 +42,7 @@ func Start(fileName string, startTime time.Time, dMins int8) (pomodoro, error) {
 		return pomodoro{}, err
 	}
 
-	if !HasEnded(l, startTime) || l.Cancelled {
+	if !l.HasEnded(startTime) || l.Cancelled {
 		return pomodoro{},
 			fmt.Errorf("Cannot start new pomodoro, please cancel the current one or wait till it is completed.")
 	}

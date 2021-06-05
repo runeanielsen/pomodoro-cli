@@ -30,10 +30,11 @@ func statusAction(out io.Writer) error {
 		fmt.Fprint(out, "The last pomodoro was cancelled, please start a new one\n")
 	}
 
-	if pomodoro.HasEnded(p, time.Now().UTC()) {
+	now := time.Now().UTC()
+	if p.HasEnded(now) {
 		fmt.Fprint(out, "00:00\n")
 	} else {
-		fmt.Fprintf(out, "%s\n", pomodoro.FmtDuration(p.TimeLeft()))
+		fmt.Fprintf(out, "%s\n", pomodoro.FmtDuration(p.TimeLeft(now)))
 	}
 
 	return nil
