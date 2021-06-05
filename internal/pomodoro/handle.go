@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// The pomodoro structure
-type pomodoro struct {
+// The Pomodoro structure
+type Pomodoro struct {
 	Started      time.Time
 	DurationMins int8
 	Cancelled    bool
@@ -17,42 +17,42 @@ type pomodoro struct {
 
 // Calculates the end time.Time of the pomodoro based on the Started field
 // and the DurationMins
-func (p pomodoro) End() time.Time {
+func (p Pomodoro) End() time.Time {
 	return p.Started.Add(time.Minute * time.Duration(p.DurationMins))
 }
 
 // Gets the time that is left of the pomodoro
-func (p pomodoro) TimeLeft(currentTime time.Time) time.Duration {
+func (p Pomodoro) TimeLeft(currentTime time.Time) time.Duration {
 	return p.End().UTC().Sub(currentTime)
 }
 
 // Return true if the pomodoro has ended
-func (p pomodoro) HasEnded(now time.Time) bool {
+func (p Pomodoro) HasEnded(now time.Time) bool {
 	return p.End().UTC().Before(now.UTC())
 }
 
 // Creates a new pomodoro and adds is to the pomodoro list
-func Start(fileName string, startTime time.Time, dMins int8) (pomodoro, error) {
+func Start(fileName string, startTime time.Time, dMins int8) (Pomodoro, error) {
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
 		ioutil.WriteFile(fileName, nil, 0644)
 	}
 
 	l, err := LoadLatest(fileName)
 	if err != nil {
-		return pomodoro{}, err
+		return Pomodoro{}, err
 	}
 
 	if !l.HasEnded(startTime) || l.Cancelled {
-		return pomodoro{},
+		return Pomodoro{},
 			fmt.Errorf("Cannot start new pomodoro, please cancel the current one or wait till it is completed.")
 	}
 
 	pomodoros, err := Load(fileName)
 	if err != nil {
-		return pomodoro{}, nil
+		return Pomodoro{}, nil
 	}
 
-	newPomodoro := pomodoro{
+	newPomodoro := Pomodoro{
 		Started:      startTime,
 		DurationMins: dMins,
 	}
@@ -61,13 +61,13 @@ func Start(fileName string, startTime time.Time, dMins int8) (pomodoro, error) {
 
 	err = save(pomodoros, fileName)
 	if err != nil {
-		return pomodoro{}, nil
+		return Pomodoro{}, nil
 	}
 
 	return newPomodoro, nil
 }
 
-func save(pomodoros []pomodoro, fileName string) error {
+func save(pomodoros []Pomodoro, fileName string) error {
 	byteValue, err := json.Marshal(pomodoros)
 	if err != nil {
 		return err
@@ -78,23 +78,23 @@ func save(pomodoros []pomodoro, fileName string) error {
 
 // Loads the list of pomodoro from the specified file
 // and returns them as a slice
-func Load(fileName string) ([]pomodoro, error) {
+func Load(fileName string) ([]Pomodoro, error) {
 	jsonFile, err := os.Open(fileName)
 	if err != nil {
-		return []pomodoro{}, err
+		return []Pomodoro{}, err
 	}
 	defer jsonFile.Close()
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
-		return []pomodoro{}, err
+		return []Pomodoro{}, err
 	}
 
-	var pomodoros []pomodoro
+	var pomodoros []Pomodoro
 	if len(byteValue) != 0 {
 		err = json.Unmarshal(byteValue, &pomodoros)
 		if err != nil {
-			return []pomodoro{}, err
+			return []Pomodoro{}, err
 		}
 	}
 
@@ -102,14 +102,14 @@ func Load(fileName string) ([]pomodoro, error) {
 }
 
 // Loads the latest pomodoro
-func LoadLatest(fileName string) (pomodoro, error) {
+func LoadLatest(fileName string) (Pomodoro, error) {
 	pomodoros, err := Load(fileName)
 	if err != nil {
-		return pomodoro{}, nil
+		return Pomodoro{}, nil
 	}
 
 	if len(pomodoros) == 0 {
-		return pomodoro{}, nil
+		return Pomodoro{}, nil
 	}
 
 	return pomodoros[len(pomodoros)-1], nil
