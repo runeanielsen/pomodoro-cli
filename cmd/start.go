@@ -33,7 +33,7 @@ func startAction(out io.Writer, dMins int8) error {
 
 	fmt.Fprintf(out, "Started pomodoro %s. The pomodor will end %s.\n",
 		p.Started.Local().Format("2 Jan 2006 15:04"),
-		p.End().Local().Format("2 Jan 2006 15:04"))
+		p.EndTime().Local().Format("2 Jan 2006 15:04"))
 
 	return nil
 }

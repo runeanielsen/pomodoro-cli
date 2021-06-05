@@ -17,18 +17,33 @@ type Pomodoro struct {
 
 // Calculates the end time.Time of the pomodoro based on the Started field
 // and the DurationMins
-func (p Pomodoro) End() time.Time {
+func (p Pomodoro) EndTime() time.Time {
 	return p.Started.Add(time.Minute * time.Duration(p.DurationMins))
 }
 
 // Gets the time that is left of the pomodoro
 func (p Pomodoro) TimeLeft(currentTime time.Time) time.Duration {
-	return p.End().UTC().Sub(currentTime)
+	return p.EndTime().UTC().Sub(currentTime)
 }
 
 // Return true if the pomodoro has ended
 func (p Pomodoro) HasEnded(now time.Time) bool {
-	return p.End().UTC().Before(now.UTC())
+	return p.EndTime().UTC().Before(now.UTC())
+}
+
+// Sets the pomodoro
+func (p *Pomodoro) Cancel(now time.Time) error {
+	if p.Cancelled {
+		return fmt.Errorf("The pomodoro is already cancelled.")
+	}
+
+	if p.HasEnded(now) {
+		return fmt.Errorf("The pomodoro has ended and can not be cancelled.")
+	}
+
+	p.Cancelled = true
+
+	return nil
 }
 
 // Creates a new pomodoro and adds is to the pomodoro list
@@ -42,7 +57,7 @@ func Start(fileName string, startTime time.Time, dMins int8) (Pomodoro, error) {
 		return Pomodoro{}, err
 	}
 
-	if !l.HasEnded(startTime) || l.Cancelled {
+	if !l.HasEnded(startTime) && !l.Cancelled {
 		return Pomodoro{},
 			fmt.Errorf("Cannot start new pomodoro, please cancel the current one or wait till it is completed.")
 	}
@@ -59,7 +74,7 @@ func Start(fileName string, startTime time.Time, dMins int8) (Pomodoro, error) {
 
 	pomodoros = append(pomodoros, newPomodoro)
 
-	err = save(pomodoros, fileName)
+	err = Save(pomodoros, fileName)
 	if err != nil {
 		return Pomodoro{}, nil
 	}
@@ -67,7 +82,8 @@ func Start(fileName string, startTime time.Time, dMins int8) (Pomodoro, error) {
 	return newPomodoro, nil
 }
 
-func save(pomodoros []Pomodoro, fileName string) error {
+// Saves the list of pomodoros to the file (overwrites)
+func Save(pomodoros []Pomodoro, fileName string) error {
 	byteValue, err := json.Marshal(pomodoros)
 	if err != nil {
 		return err
