@@ -31,7 +31,7 @@ func startAction(out io.Writer, dMins int8) error {
 		return err
 	}
 
-	fmt.Fprintf(out, "Started pomodoro %s. The pomodor will end %s.\n",
+	fmt.Fprintf(out, "Started pomodoro %s. The pomodoro will end %s.\n",
 		p.Started.Local().Format("2 Jan 2006 15:04"),
 		p.EndTime().Local().Format("2 Jan 2006 15:04"))
 
