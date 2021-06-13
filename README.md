@@ -17,7 +17,7 @@ Started pomodoro 13 Jun 2021 23:22. The pomodoro will end 13 Jun 2021 23:52.
 $ pomodoro-cli cancel
 
 # Status of the current pomodoro
-$ pomodoro-cli cancel
+$ pomodoro-cli status
 24:51
 ```
 
