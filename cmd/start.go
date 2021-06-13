@@ -23,9 +23,6 @@ var startCmd = &cobra.Command{
 		}
 
 		pFile := viper.GetString("storage")
-		if err != nil {
-			return err
-		}
 
 		return startAction(os.Stdout, duration, pFile)
 	},
