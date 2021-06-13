@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/runeanielsen/pomodoro-cli/internal/pomodoro"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var startCmd = &cobra.Command{
@@ -19,14 +21,20 @@ var startCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return startAction(os.Stdout, duration)
+
+		pFile := viper.GetString("storage")
+		if err != nil {
+			return err
+		}
+
+		return startAction(os.Stdout, duration, pFile)
 	},
 }
 
-func startAction(out io.Writer, dMins int8) error {
-	fileName := "/tmp/pomodoro.json"
+func startAction(out io.Writer, dMins int8, pFile string) error {
+	now := time.Now().UTC()
 
-	p, err := pomodoro.Start(fileName, time.Now().UTC(), dMins)
+	p, err := pomodoro.Start(pFile, now, dMins)
 	if err != nil {
 		return err
 	}
@@ -34,6 +42,11 @@ func startAction(out io.Writer, dMins int8) error {
 	fmt.Fprintf(out, "Started pomodoro %s. The pomodoro will end %s.\n",
 		p.Started.Local().Format("2 Jan 2006 15:04"),
 		p.EndTime().Local().Format("2 Jan 2006 15:04"))
+
+	bg := exec.Command("pomodoro-cli", "worker")
+	if err = bg.Start(); err != nil {
+		return err
+	}
 
 	return nil
 }

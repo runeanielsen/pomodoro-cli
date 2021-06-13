@@ -8,20 +8,21 @@ import (
 
 	"github.com/runeanielsen/pomodoro-cli/internal/pomodoro"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Displays the status of the pomodoro",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return statusAction(os.Stdout)
+		pFile := viper.GetString("storage")
+
+		return statusAction(os.Stdout, pFile)
 	},
 }
 
-func statusAction(out io.Writer) error {
-	fileName := "/tmp/pomodoro.json"
-
-	p, err := pomodoro.LoadLatest(fileName)
+func statusAction(out io.Writer, pFile string) error {
+	p, err := pomodoro.LoadLatest(pFile)
 	if err != nil {
 		return err
 	}
