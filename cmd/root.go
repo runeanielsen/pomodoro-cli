@@ -38,12 +38,15 @@ func initConfig() {
 	viper.SetConfigType("yaml")
 
 	viper.SetDefault("storage", home+"/.config/pomodoro-cli/pomodoros.json")
+	viper.SetDefault("finished", home+"/.config/pomodoro-cli/finished")
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		if err := os.Mkdir(configPath, os.ModePerm); err != nil {
 			log.Fatal(err)
 		}
+	}
 
+	if _, err := os.Stat(configPath + "/config.yaml"); os.IsNotExist(err) {
 		if err := viper.SafeWriteConfig(); err != nil {
 			log.Fatal(err)
 		}

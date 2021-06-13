@@ -16,7 +16,6 @@ var statusCmd = &cobra.Command{
 	Short: "Displays the status of the pomodoro",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pFile := viper.GetString("storage")
-
 		return statusAction(os.Stdout, pFile)
 	},
 }
