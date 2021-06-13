@@ -21,9 +21,15 @@ func (p Pomodoro) EndTime() time.Time {
 	return p.Started.Add(time.Minute * time.Duration(p.DurationMins))
 }
 
-// Gets the time that is left of the pomodoro
+// Get the time that is left of the pomodoro
 func (p Pomodoro) TimeLeft(currentTime time.Time) time.Duration {
-	return p.EndTime().UTC().Sub(currentTime)
+	left := p.EndTime().UTC().Sub(currentTime)
+
+	if left > 0 {
+		return left
+	} else {
+		return time.Second * 0
+	}
 }
 
 // Return true if the pomodoro has ended
