@@ -5,6 +5,7 @@ import (
 
 	"github.com/runeanielsen/pomodoro-cli/internal/pomodoro"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // cancelCmd represents the cancel command
@@ -13,13 +14,13 @@ var cancelCmd = &cobra.Command{
 	Short:        "Cancel the pomodoro",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cancelAction()
+		pFile := viper.GetString("storage")
+		return cancelAction(pFile)
 	},
 }
 
-func cancelAction() error {
-	fileName := "/tmp/pomodoro.json"
-	pomodoros, err := pomodoro.Load(fileName)
+func cancelAction(pFile string) error {
+	pomodoros, err := pomodoro.Load(pFile)
 	if err != nil {
 		return err
 	}
@@ -29,7 +30,7 @@ func cancelAction() error {
 		return err
 	}
 
-	if err := pomodoro.Save(pomodoros, fileName); err != nil {
+	if err := pomodoro.Save(pomodoros, pFile); err != nil {
 		return err
 	}
 
