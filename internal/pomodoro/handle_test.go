@@ -13,7 +13,7 @@ func TestStart(t *testing.T) {
 	testCases := []struct {
 		name           string
 		expectErrMsg   string
-		expectDuration int8
+		expectDuration time.Duration
 		expectedLen    int
 	}{
 		{"Start", "", 25, 1},
@@ -42,8 +42,8 @@ func TestStart(t *testing.T) {
 				return
 			}
 
-			if tc.expectDuration != p.DurationMins {
-				t.Fatalf("Expected DurationMins '%d' got '%d' instead", tc.expectDuration, p.DurationMins)
+			if tc.expectDuration != p.Duration {
+				t.Fatalf("Expected DurationMins '%d' got '%d' instead", tc.expectDuration, p.Duration)
 			}
 
 			if p.Started.IsZero() {

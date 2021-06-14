@@ -24,7 +24,7 @@ func initWorker(pFile string, fFile string) error {
 		return err
 	}
 
-	time.Sleep(time.Duration(startedPomo.DurationMins) * time.Minute)
+	time.Sleep(startedPomo.Duration)
 
 	// We load it again to make sure it has not been canceled since it was started
 	reloadedPomo, err := pomodoro.LoadLatest(pFile)
