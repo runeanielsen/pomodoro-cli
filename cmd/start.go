@@ -17,21 +17,22 @@ var startCmd = &cobra.Command{
 	Short:        "Start pomomdoro",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		duration, err := cmd.Flags().GetInt8("duration")
+		mins, err := cmd.Flags().GetInt8("duration")
 		if err != nil {
 			return err
 		}
 
 		pFile := viper.GetString("storage")
 
-		return startAction(os.Stdout, duration, pFile)
+		return startAction(os.Stdout, mins, pFile)
 	},
 }
 
-func startAction(out io.Writer, dMins int8, pFile string) error {
+func startAction(out io.Writer, mins int8, pFile string) error {
 	now := time.Now().UTC()
 
-	p, err := pomodoro.Start(pFile, now, dMins)
+	d := time.Duration(mins) * time.Minute
+	p, err := pomodoro.Start(pFile, now, d)
 	if err != nil {
 		return err
 	}

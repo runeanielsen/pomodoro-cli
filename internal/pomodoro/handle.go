@@ -10,15 +10,15 @@ import (
 
 // The Pomodoro structure
 type Pomodoro struct {
-	Started      time.Time
-	DurationMins int8
-	Cancelled    bool
+	Started   time.Time
+	Duration  time.Duration
+	Cancelled bool
 }
 
 // Calculates the end time.Time of the pomodoro based on the Started field
 // and the DurationMins
 func (p Pomodoro) EndTime() time.Time {
-	return p.Started.Add(time.Minute * time.Duration(p.DurationMins))
+	return p.Started.Add(p.Duration)
 }
 
 // Get the time that is left of the pomodoro
@@ -53,7 +53,7 @@ func (p *Pomodoro) Cancel(now time.Time) error {
 }
 
 // Creates a new pomodoro and adds is to the pomodoro list
-func Start(fileName string, startTime time.Time, dMins int8) (Pomodoro, error) {
+func Start(fileName string, startTime time.Time, duration time.Duration) (Pomodoro, error) {
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
 		ioutil.WriteFile(fileName, nil, 0644)
 	}
@@ -74,8 +74,8 @@ func Start(fileName string, startTime time.Time, dMins int8) (Pomodoro, error) {
 	}
 
 	newPomodoro := Pomodoro{
-		Started:      startTime,
-		DurationMins: dMins,
+		Started:  startTime,
+		Duration: duration,
 	}
 
 	pomodoros = append(pomodoros, newPomodoro)
