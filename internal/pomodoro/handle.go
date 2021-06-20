@@ -24,7 +24,6 @@ func (p Pomodoro) EndTime() time.Time {
 // Get the time that is left of the pomodoro
 func (p Pomodoro) TimeLeft(currentTime time.Time) time.Duration {
 	left := p.EndTime().UTC().Sub(currentTime)
-
 	if left > 0 {
 		return left
 	} else {
@@ -53,7 +52,7 @@ func (p *Pomodoro) Cancel(now time.Time) error {
 }
 
 // Creates a new pomodoro and adds is to the pomodoro list
-func Start(fileName string, startTime time.Time, duration time.Duration) (Pomodoro, error) {
+func Add(fileName string, startTime time.Time, duration time.Duration) (Pomodoro, error) {
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
 		ioutil.WriteFile(fileName, nil, 0644)
 	}
@@ -65,7 +64,7 @@ func Start(fileName string, startTime time.Time, duration time.Duration) (Pomodo
 
 	if !l.HasEnded(startTime) && !l.Cancelled {
 		return Pomodoro{},
-			fmt.Errorf("Cannot start new pomodoro, please cancel the current one or wait till it is completed.")
+			fmt.Errorf("Cannot add new pomodoro, please cancel the current one or wait till it is completed.")
 	}
 
 	pomodoros, err := Load(fileName)

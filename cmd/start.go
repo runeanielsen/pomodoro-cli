@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"io"
 	"os"
-	"os/exec"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/runeanielsen/pomodoro-cli/internal/pomodoro"
@@ -22,28 +22,31 @@ var startCmd = &cobra.Command{
 			return err
 		}
 
+		silent, err := cmd.Flags().GetBool("silent")
+		if err != nil {
+			return err
+		}
+
+		fFile := viper.GetString("finished")
 		pFile := viper.GetString("storage")
 
-		return startAction(os.Stdout, mins, pFile)
+		return startAction(os.Stdout, mins, pFile, fFile, silent)
 	},
 }
 
-func startAction(out io.Writer, mins int8, pFile string) error {
-	now := time.Now().UTC()
+func startAction(out io.Writer, mins int8, pFile string, fFile string, silent bool) error {
+	pomodoro.PomdoroLoop(fFile, time.Duration(mins)*time.Minute,
+		time.Duration(30)*time.Second)
 
-	d := time.Duration(mins) * time.Minute
-	p, err := pomodoro.Start(pFile, now, d)
-	if err != nil {
-		return err
-	}
+	signalCh := make(chan os.Signal, 2)
+	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
 
-	fmt.Fprintf(out, "Started pomodoro %s. The pomodoro will end %s.\n",
-		p.Started.Local().Format("2 Jan 2006 15:04"),
-		p.EndTime().Local().Format("2 Jan 2006 15:04"))
-
-	bg := exec.Command("pomodoro-cli", "worker")
-	if err = bg.Start(); err != nil {
-		return err
+	sig := <-signalCh
+	switch sig {
+	case os.Interrupt:
+		return nil
+	case syscall.SIGTERM:
+		return nil
 	}
 
 	return nil
@@ -52,4 +55,5 @@ func startAction(out io.Writer, mins int8, pFile string) error {
 func init() {
 	rootCmd.AddCommand(startCmd)
 	startCmd.Flags().Int8P("duration", "d", 25, "Duration of the pomodoro")
+	startCmd.Flags().BoolP("silent", "s", false, "Silence the output")
 }
