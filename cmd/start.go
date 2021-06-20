@@ -12,6 +12,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+type StartParameters struct {
+	PomodoroDuration time.Duration
+	PomodoroFilePath string
+}
+
 var startCmd = &cobra.Command{
 	Use:          "start",
 	Short:        "Start pomomdoro",
@@ -35,8 +40,7 @@ var startCmd = &cobra.Command{
 }
 
 func startAction(out io.Writer, mins int8, pFile string, fFile string, silent bool) error {
-	pomodoro.PomdoroLoop(fFile, time.Duration(mins)*time.Minute,
-		time.Duration(30)*time.Second)
+	pomodoro.PomdoroLoop(fFile, time.Duration(mins)*time.Minute, time.Duration(5)*time.Minute)
 
 	signalCh := make(chan os.Signal, 2)
 	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
@@ -54,6 +58,7 @@ func startAction(out io.Writer, mins int8, pFile string, fFile string, silent bo
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-	startCmd.Flags().Int8P("duration", "d", 25, "Duration of the pomodoro")
+	startCmd.Flags().Int8P("pduration", "d", 25, "Duration of the pomodoros")
+	startCmd.Flags().Int8P("bduration", "b", 5, "Duration of the breaks")
 	startCmd.Flags().BoolP("silent", "s", false, "Silence the output")
 }
