@@ -1,6 +1,6 @@
 # Pomodoro-cli
 
-Pomodoro command-line interface.
+Pomodoro command-line interface. It's very simple and you can only `start` and `cancel` a pomodoro. The job is running in the background, so you can just start it from a terminal and kill the terminal after if you want.
 
 ## Examples
 
@@ -31,3 +31,11 @@ The config path is `~/.config/pomodoro-cli`. The folder contains
 ### Hooks
 
 If you want to execute a command when the pomodoro finishes then place an executeable script named `finished` in the current path `~/.config/pomodoro-cli`.
+
+Here is an example where I play a sound when the pomodoro is over.
+
+```bash
+#!/bin/env bash
+
+ffplay -nodisp -autoexit ~/.config/pomodoro-cli/break_sound.mp3
+```
